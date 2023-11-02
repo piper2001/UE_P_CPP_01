@@ -3,12 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SInteractComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/Character.h"
 #include "SCharacter.generated.h"
 
 class UCameraComponent;
 class USpringArmComponent;
+class USInteractComponent;
+class UAnimMontage;
 UCLASS()
 class UE_P_CPP_01_API ASCharacter : public ACharacter
 {
@@ -19,11 +22,20 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AActor> ProjectileClass;
 
+	UPROPERTY(EditAnywhere,Category="Attack");
+	UAnimMontage* AttackAnim;
+
+	FTimerHandle TimerHandle_PrimaryAttack;
+
 public:
 	// Sets default values for this character's properties
 	ASCharacter();
 
 protected:
+
+	UPROPERTY(VisibleAnywhere)
+	USInteractComponent* InteractComp;
+	
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* SpringArmComp;
 	
@@ -36,7 +48,11 @@ protected:
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 
+
+	void PrimaryAttack_TimeElapsed();
+	
 	void PrimaryAttack();
+	void PrimaryInteract();
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

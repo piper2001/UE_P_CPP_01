@@ -5,6 +5,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "SInteractComponent.h"
+
 
 // Sets default values
 ASCharacter::ASCharacter()
@@ -19,9 +21,14 @@ ASCharacter::ASCharacter()
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
 	CameraComp->SetupAttachment(SpringArmComp);
 
+	InteractComp = CreateDefaultSubobject<USInteractComponent>("InteractComp");
+	
+
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
 	bUseControllerRotationYaw = false;
+
+	
 }
 
 // Called when the game starts or when spawned
@@ -47,9 +54,9 @@ void ASCharacter::MoveRight(float Value)
 	AddMovementInput(RightVector,Value);
 }
 
-void ASCharacter::PrimaryAttack()
+void ASCharacter::PrimaryAttack_TimeElapsed()
 {
-	 FVector RHandLoaction= GetMesh()->GetSocketLocation("Muzzle_01") + GetActorForwardVector()*0.5;
+	FVector RHandLoaction= GetMesh()->GetSocketLocation("Muzzle_01") + GetActorForwardVector()*0.5;
 	
 	FTransform SpawnTM = FTransform(GetControlRotation(),RHandLoaction);
 
@@ -57,6 +64,25 @@ void ASCharacter::PrimaryAttack()
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	
 	GetWorld()->SpawnActor<AActor>(ProjectileClass,SpawnTM,SpawnParams);
+}
+
+void ASCharacter::PrimaryAttack()
+{
+	PlayAnimMontage(AttackAnim);
+
+	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack,this,&ASCharacter::PrimaryAttack_TimeElapsed,0.2f);
+	//GetWorldTimerManager().ClearTimer(TimerHandle_PrimaryAttack);
+	
+	
+}
+
+void ASCharacter::PrimaryInteract()
+{
+	if(InteractComp)
+	{
+		InteractComp->PrimaryInteract();
+	}
+
 }
 
 
@@ -78,5 +104,6 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAxis("LookUp",this,&APawn::AddControllerPitchInput);
 
 	PlayerInputComponent->BindAction("PrimaryAttack",IE_Pressed,this,&ASCharacter::PrimaryAttack);
+	PlayerInputComponent->BindAction("PrimaryInteract",IE_Pressed,this,&ASCharacter::PrimaryInteract);
 }
 
