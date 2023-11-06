@@ -22,7 +22,8 @@ ASCharacter::ASCharacter()
 	CameraComp->SetupAttachment(SpringArmComp);
 
 	InteractComp = CreateDefaultSubobject<USInteractComponent>("InteractComp");
-	
+
+	AttributesComp = CreateDefaultSubobject<USArributesComponent>("AttributesComp");
 
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 
@@ -56,15 +57,19 @@ void ASCharacter::MoveRight(float Value)
 
 void ASCharacter::PrimaryAttack_TimeElapsed()
 {
-	FVector RHandLoaction= GetMesh()->GetSocketLocation("Muzzle_01") + GetActorForwardVector()*0.5;
+	if(ensure(ProjectileClass))
+	{
+		FVector RHandLoaction= GetMesh()->GetSocketLocation("Muzzle_01") + GetActorForwardVector()*0.5;
 	
-	FTransform SpawnTM = FTransform(GetControlRotation(),RHandLoaction);
+		FTransform SpawnTM = FTransform(GetControlRotation(),RHandLoaction);
 
-	FActorSpawnParameters SpawnParams ;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	SpawnParams.Instigator = this;
+		FActorSpawnParameters SpawnParams ;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		SpawnParams.Instigator = this;
 	
-	GetWorld()->SpawnActor<AActor>(ProjectileClass,SpawnTM,SpawnParams);
+		GetWorld()->SpawnActor<AActor>(ProjectileClass,SpawnTM,SpawnParams);
+	}
+	
 }
 
 void ASCharacter::PrimaryAttack()
@@ -84,6 +89,11 @@ void ASCharacter::PrimaryInteract()
 		InteractComp->PrimaryInteract();
 	}
 
+}
+
+void ASCharacter::PrimaryJump()
+{
+	Jump();
 }
 
 
@@ -106,5 +116,6 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 	PlayerInputComponent->BindAction("PrimaryAttack",IE_Pressed,this,&ASCharacter::PrimaryAttack);
 	PlayerInputComponent->BindAction("PrimaryInteract",IE_Pressed,this,&ASCharacter::PrimaryInteract);
+	PlayerInputComponent->BindAction("PrimaryJump",IE_Pressed,this,&ASCharacter::PrimaryJump);
 }
 

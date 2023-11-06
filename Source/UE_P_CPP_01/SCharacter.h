@@ -6,12 +6,16 @@
 #include "SInteractComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/Character.h"
+
+#include "SArributesComponent.h"
 #include "SCharacter.generated.h"
+
 
 class UCameraComponent;
 class USpringArmComponent;
 class USInteractComponent;
 class UAnimMontage;
+class USArributesComponent;
 UCLASS()
 class UE_P_CPP_01_API ASCharacter : public ACharacter
 {
@@ -41,6 +45,10 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* CameraComp;
+
+	
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
+	USArributesComponent*  AttributesComp;
 	// Called when the game starts or when spawned
 	
 	virtual void BeginPlay() override;
@@ -53,6 +61,8 @@ protected:
 	
 	void PrimaryAttack();
 	void PrimaryInteract();
+	void PrimaryJump();
+	
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

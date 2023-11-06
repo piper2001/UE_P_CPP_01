@@ -5,6 +5,8 @@
 
 #include <Particles/ParticleSystemComponent.h>
 
+#include "SArributesComponent.h"
+
 //#include "AITypes.h"
 
 // Sets default values
@@ -19,6 +21,7 @@ ASMagicProjectile::ASMagicProjectile()
 	SphereComp->SetCollisionResponseToAllChannels(ECR_Ignore);
 	SphereComp->SetCollisionResponseToChannel(ECC_Pawn,ECR_Overlap);*/
 	SphereComp->SetCollisionProfileName("Projectile");
+	SphereComp->OnComponentBeginOverlap.AddDynamic(this, &ASMagicProjectile::OnActorOverlap);
 
 	Effectcomp = CreateDefaultSubobject<UParticleSystemComponent>("EffectComp");
 	Effectcomp->SetupAttachment(SphereComp);
@@ -30,6 +33,22 @@ ASMagicProjectile::ASMagicProjectile()
 	
 	
 
+}
+
+void ASMagicProjectile::OnActorOverlap(
+	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+	bool bFromSweep, const FHitResult& SweepResult)
+{
+	if(OtherActor)
+	{
+		USArributesComponent* AttributesComp = Cast<USArributesComponent>(OtherActor->GetComponentByClass(USArributesComponent::StaticClass()));
+		if(AttributesComp)
+		{
+			AttributesComp->ApplyHealthChange(-20.0f);
+
+			Destroy();
+		}
+	}
 }
 
 // Called when the game starts or when spawned
