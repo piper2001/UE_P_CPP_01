@@ -39,7 +39,7 @@ void ASMagicProjectile::OnActorOverlap(
 	UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
-	if(OtherActor)
+	if(OtherActor &&  OtherActor!= GetInstigator())//加入对玩家（即发出魔法飞弹攻击的pwan）的排除
 	{
 		USArributesComponent* AttributesComp = Cast<USArributesComponent>(OtherActor->GetComponentByClass(USArributesComponent::StaticClass()));
 		if(AttributesComp)
