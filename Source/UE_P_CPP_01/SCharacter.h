@@ -26,6 +26,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AActor> ProjectileClass;
 
+	/*UPROPERTY(EditAnywhere)
+	TSubclassOf<AActor> ClassToSpawn;*/
+	
 	UPROPERTY(EditAnywhere,Category="Attack");
 	UAnimMontage* AttackAnim;
 
@@ -62,6 +65,8 @@ protected:
 	void PrimaryAttack();
 	void PrimaryInteract();
 	void PrimaryJump();
+
+	void SpawnProjectile(TSubclassOf<AActor> ClassToSpawn);
 	
 public:	
 	// Called every frame

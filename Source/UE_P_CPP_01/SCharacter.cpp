@@ -57,10 +57,15 @@ void ASCharacter::MoveRight(float Value)
 
 void ASCharacter::PrimaryAttack_TimeElapsed()
 {
-	if(ensure(ProjectileClass))
+	/*if(ensure(ProjectileClass))
 	{
 		FVector RHandLoaction= GetMesh()->GetSocketLocation("Muzzle_01") + GetActorForwardVector()*0.5;
-	
+		/*FHitResult Hit;
+		FVector Start,End;
+		Start =
+		FCollisionObjectQueryParams CollisionParam;
+		GetWorld()->LineTraceSingleByObjectType(Hit,Start,End,CollisionParam);#1#
+		
 		FTransform SpawnTM = FTransform(GetControlRotation(),RHandLoaction);
 
 		FActorSpawnParameters SpawnParams ;
@@ -68,8 +73,8 @@ void ASCharacter::PrimaryAttack_TimeElapsed()
 		SpawnParams.Instigator = this;
 	
 		GetWorld()->SpawnActor<AActor>(ProjectileClass,SpawnTM,SpawnParams);
-	}
-	
+	}*/
+	SpawnProjectile(ProjectileClass);
 }
 
 void ASCharacter::PrimaryAttack()
@@ -119,3 +124,42 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAction("PrimaryJump",IE_Pressed,this,&ASCharacter::PrimaryJump);
 }
 
+void ASCharacter::SpawnProjectile(TSubclassOf<AActor> ClassToSpawn)
+{
+	if(ensureAlways(ClassToSpawn))
+	{
+		FVector HandLocation = GetMesh()->GetSocketLocation("Muzzle_01");
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		SpawnParams.Instigator= this;
+
+		FCollisionShape Shape;
+		Shape.SetSphere(20.0f);
+
+		FCollisionQueryParams Params;
+		Params.AddIgnoredActor(this);
+
+		FCollisionObjectQueryParams objParam;
+		objParam.AddObjectTypesToQuery(ECC_WorldDynamic);
+		objParam.AddObjectTypesToQuery(ECC_WorldStatic);
+		objParam.AddObjectTypesToQuery(ECC_Pawn);
+
+		FVector TraceStart = CameraComp->GetComponentLocation();
+
+		FVector TraceEnd= CameraComp->GetComponentLocation()+ (GetControlRotation().Vector() *5000);
+
+		FHitResult Hit;
+		if(GetWorld()->SweepSingleByObjectType(Hit,TraceStart,TraceEnd,FQuat::Identity,objParam,Shape,Params))
+		{
+			TraceEnd = Hit.ImpactPoint;
+		}
+
+		FRotator ProjRotation = FRotationMatrix::MakeFromX(TraceEnd-HandLocation).Rotator();
+		FTransform SpawnTM = FTransform(ProjRotation,HandLocation);
+
+		GetWorld()->SpawnActor<AActor>(ClassToSpawn,SpawnTM,SpawnParams);
+		
+		
+		
+	}
+}
